@@ -1,31 +1,33 @@
 var Game = Game || {};
 
-Game.Game = function(game) {};
+Game.Hanoi = function(game) {};
 
-Game.Game.prototype = 
+Game.Hanoi.prototype = 
 {
     
     init: function(pieces, speed) {
+        
         this._numberPiece = pieces;
         this._speedSolve = speed;
+        
     },
     
     
     preload : function() {
         
-        this.load.spritesheet('button', 'resources/game/boton.png', 80, 20);
+        this.load.spritesheet('button', 'resources/game/button.png', 80, 20);
         this.load.bitmapFont('nokia', 'resources/fonts/nokia16black.png', 'resources/fonts/nokia16black.xml');
 
-		this.load.spritesheet('tower', 'resources/game/palo.png', 100, 600);
+		this.load.spritesheet('tower', 'resources/game/tower.png', 100, 600);
 		
-        this.load.spritesheet('pieceVerde', 'resources/game/verde.png', 60, 300);
-		this.load.spritesheet('pieceAmarillo', 'resources/game/amarillo.png', 60, 300);
-		this.load.spritesheet('pieceVioleta', 'resources/game/violeta.png', 60, 300);
-		this.load.spritesheet('pieceAzul', 'resources/game/azul.png', 60, 300);
-		this.load.spritesheet('pieceRojo', 'resources/game/rojo.png', 60, 300);
-		this.load.spritesheet('pieceCafe', 'resources/game/cafe.png', 60, 300);
+        this.load.spritesheet('pieceGreen', 'resources/game/green.png', 60, 300);
+		this.load.spritesheet('pieceYellow', 'resources/game/yellow.png', 60, 300);
+		this.load.spritesheet('pieceViolet', 'resources/game/violet.png', 60, 300);
+		this.load.spritesheet('pieceBlue', 'resources/game/blue.png', 60, 300);
+		this.load.spritesheet('pieceRed', 'resources/game/red.png', 60, 300);
+		this.load.spritesheet('pieceBrown', 'resources/game/brown.png', 60, 300);
         
-        this.load.spritesheet('iconDrop', 'resources/game/iconupdown2.png', 512, 339);
+        this.load.spritesheet('iconDrop', 'resources/game/iconupdown.png', 512, 339);
 
     },
 
@@ -62,7 +64,7 @@ Game.Game.prototype =
         var text = game.add.bitmapText(x, y + 7, 'nokia', 'Restart', 16);
         text.x += ((this._buttonRestart.width / 2) + 220) - (text.textWidth / 2);
         
-        this._buttonRestore = this.add.button(x + 440, y, 'button', this.retoreGame, this, 0, 1, 2);
+        this._buttonRestore = this.add.button(x + 440, y, 'button', this.restoreGame, this, 0, 1, 2);
         this._buttonRestore.name = 'Restore';
         this._buttonRestore.scale.set(2, 1.5);
         this._buttonRestore.smoothed = false;
@@ -70,7 +72,7 @@ Game.Game.prototype =
         var text = game.add.bitmapText(x, y + 7, 'nokia', 'Restore', 16);
         text.x += ((this._buttonRestore.width / 2) + 440) - (text.textWidth / 2);
         
-        //Crear estadisticas
+        //Crear controles de juego
         
         var style = {
             font : '15px BitBold',
@@ -156,14 +158,13 @@ Game.Game.prototype =
         //Crear elementos de juego
 		
 		//this._numberPiece = 6;
-        var colors = ['pieceVerde', 'pieceAmarillo', 'pieceVioleta', 'pieceAzul', 'pieceRojo', 'pieceCafe'];
         this.game.stage.backgroundColor = "#4488AA";
         
         this._towers = this.game.add.group();
         this._pieces = this.game.add.group();
         this._solve = [];
 		
-		for (var i = 0, x = 93; i< 3; i++, x+=320) 
+		for (var i = 0, x = 93; i < 3; i++, x+=320) 
 		{
 			var tower = this.game.add.sprite(x, 120, 'tower');
 			tower.smoothed = false
@@ -182,6 +183,7 @@ Game.Game.prototype =
         //Mapear posiciones
         
 		var standar = [];
+        var colors = ['pieceGreen', 'pieceYellow', 'pieceViolet', 'pieceBlue', 'pieceRed', 'pieceBrown'];
         
         /*
             pieza 3 ->    --
@@ -198,6 +200,7 @@ Game.Game.prototype =
 		for (var i = 0, scaleX = 0.9, positionY = 430, positionX = -10; i < this._numberPiece; i++, scaleX-=0.1, positionY-=33, positionX+=15) 
 		{
 			var singlePiece;
+            
             if (i >= colors.length) 
             {
                 singlePiece = this.game.add.sprite(positionX, positionY, colors[Math.floor(Math.random() * colors.length)]);
@@ -207,7 +210,7 @@ Game.Game.prototype =
             {
                 singlePiece = this.game.add.sprite(positionX, positionY, colors[i]);
             }
-            //singlePiece.tint =  * 0xffffff;
+            
 			singlePiece.smoothed = false
             this.game.physics.arcade.enable(singlePiece);
 			singlePiece.scale.set(scaleX, 0.6);
@@ -220,7 +223,6 @@ Game.Game.prototype =
             singlePiece._oldPosition = {x: singlePiece.x, y: singlePiece.y};
             singlePiece._typePiece = i;
             singlePiece._typeTower = 0;
-            singlePiece._move = false;
             singlePiece.body.setSize(singlePiece.body.width - 200, singlePiece.body.height, 91, 1);
             
             standar.push({x: singlePiece.x, y: singlePiece.y});
@@ -239,12 +241,12 @@ Game.Game.prototype =
         });
         
         this.recursionHanoi(0, 0, 2, 1);
+        
+        console.log(this._solve);
 
     },
 
     update: function() {
-       
-        
 
     },
     
@@ -265,20 +267,6 @@ Game.Game.prototype =
         
         this._buttonSolve.inputEnabled = false;
         
-        var pieces = this._towers.getAt(sprite._typeTower)._pieces;
-        
-        if (pieces.indexOf(sprite._typePiece) > 0) {
-            
-            sprite.x = sprite._oldPosition.x;
-            sprite.y = sprite._oldPosition.y;
-            sprite._move = false;
-        }
-        else {
-            
-            sprite._move = true;
-            
-        }
-        
     },
     
     onDragStop: function(sprite, pointer) {
@@ -293,9 +281,25 @@ Game.Game.prototype =
             
            //console.log(this._towers.getIndex(tower));
             
-           if (piece._move) {
-            
-               if (tower._pieces.length <= 0) {
+           if (tower._pieces.length <= 0) {
+
+                this._towers.getAt(piece._typeTower)._pieces.shift(); // Eliminar primera pieza de la torre antigua
+                tower._pieces.splice(0, 0, piece._typePiece); // Poner la pieza en la nueva torre
+                piece._typeTower = this._towers.getIndex(tower); // Guarda la torre en que se puso la pieza
+
+                // Ubicar pieza en la torre (visualmente)
+                piece.x = tower._standar[piece._typePiece].x;
+                piece.y = tower._standar[0].y;
+
+                piece._oldPosition = {x: piece.x, y: piece.y}; // Guardar posición actual
+
+                this._attemps++;
+
+                this._stAttemps.setText('MOVEMENTS: ' + this._attemps);
+
+           }else {
+
+               if (tower._pieces[0] < piece._typePiece) {
 
                     this._towers.getAt(piece._typeTower)._pieces.shift(); // Eliminar primera pieza de la torre antigua
                     tower._pieces.splice(0, 0, piece._typePiece); // Poner la pieza en la nueva torre
@@ -303,7 +307,7 @@ Game.Game.prototype =
 
                     // Ubicar pieza en la torre (visualmente)
                     piece.x = tower._standar[piece._typePiece].x;
-                    piece.y = tower._standar[0].y;
+                    piece.y = tower._standar[tower._pieces.length - 1].y;
 
                     piece._oldPosition = {x: piece.x, y: piece.y}; // Guardar posición actual
 
@@ -311,71 +315,46 @@ Game.Game.prototype =
 
                     this._stAttemps.setText('MOVEMENTS: ' + this._attemps);
 
-               }else {
+               } else {
 
-                   if (tower._pieces[0] < piece._typePiece) {
+                   //Movimiento incorrecto
 
-                        this._towers.getAt(piece._typeTower)._pieces.shift(); // Eliminar primera pieza de la torre antigua
-                        tower._pieces.splice(0, 0, piece._typePiece); // Poner la pieza en la nueva torre
-                        piece._typeTower = this._towers.getIndex(tower); // Guarda la torre en que se puso la pieza
-
-                        // Ubicar pieza en la torre (visualmente)
-                        piece.x = tower._standar[piece._typePiece].x;
-                        piece.y = tower._standar[tower._pieces.length - 1].y;
-
-                        piece._oldPosition = {x: piece.x, y: piece.y}; // Guardar posición actual
-
-                        this._attemps++;
-
-                        this._stAttemps.setText('MOVEMENTS: ' + this._attemps);
-                       
-                   } else {
-
-                       //Movimiento incorrecto
-                       
-                       piece.x = piece._oldPosition.x;
-                       piece.y = piece._oldPosition.y;
-                       
-                   }
+                   piece.x = piece._oldPosition.x;
+                   piece.y = piece._oldPosition.y;
 
                }
-               
-               // Win?
-               
-               if (this.winUser(this._towers.getAt(2)._pieces)) {
-                   
-                    this._stopWatch.stop();
 
-                    console.log('Finished!');
-
-                    this._buttonRestart.inputEnabled = true;
-                    this._buttonRestore.inputEnabled = true;
-
-                    var style = {
-                        font : '15px BitBold',
-                        fill: 'white',
-                        stroke: 'black',
-                        strokeThickness: 2.5
-                    };
-
-                    var stWin  = this.add.text(400, 50, 'WIN!', style);
-                    stWin.fontSize = '33px';
-                    stWin.addColor("#ff0000", 0);
-                    stWin.fixedToCamera = true;
-                    stWin.alpha = 0;
-                   
-                   this.add.tween(stWin).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 0, 500, true);
-                   
-                   this._pieces.setAll('inputEnabled', false);
-               }
-               
            }
-           else {
-               
-               piece.x = piece._oldPosition.x;
-               piece.y = piece._oldPosition.y;               
-               
+
+           // Win?
+
+           if (this.winUser(this._towers.getAt(2)._pieces)) {
+
+                this._stopWatch.stop();
+
+                console.log('Finished!');
+
+                this._buttonRestart.inputEnabled = true;
+                this._buttonRestore.inputEnabled = true;
+
+                var style = {
+                    font : '15px BitBold',
+                    fill: 'white',
+                    stroke: 'black',
+                    strokeThickness: 2.5
+                };
+
+                var stWin  = this.add.text(400, 50, 'WIN!', style);
+                stWin.fontSize = '33px';
+                stWin.addColor("#ff0000", 0);
+                stWin.fixedToCamera = true;
+                stWin.alpha = 0;
+
+               this.add.tween(stWin).to( { alpha: 1 }, 1000, Phaser.Easing.Linear.None, true, 0, 500, true);
+
+               this._pieces.setAll('inputEnabled', false);
            }
+            
            //console.log(this._towers.getAt(0)._pieces)
            //console.log(this._towers.getAt(1)._pieces)
            //console.log(this._towers.getAt(2)._pieces)
@@ -439,14 +418,6 @@ Game.Game.prototype =
         var timerSolve = this.time.create(false);
         timerSolve.name = 'TimerSolve';
         this._modeSolve = true;
-            
-        for(var i = 0; i < this._solve.length; i++) {
-
-            var piece = this._solve[i].piece,
-                origin = this._solve[i].origin,
-                destination = this._solve[i].destination;
-
-        }
         
         var instructions = this.getInstructions();
         
@@ -558,7 +529,7 @@ Game.Game.prototype =
         
     },
     
-    retoreGame: function() {
+    restoreGame: function() {
         
         this.state.start('Game', true, false, settings.MinPieces, settings.InitialSpeedSolve);
         
@@ -569,7 +540,7 @@ Game.Game.prototype =
 
 var settings = 
     { 
-        MinPieces: 4, 
+        MinPieces: 3,
         MaxPieces: 8, 
         InitialSpeedSolve: 50, 
         MaxSpeedSolve: 10000, 
@@ -578,6 +549,6 @@ var settings =
 
 var game = new Phaser.Game(900, 600, Phaser.AUTO, 'hanoi-example');
 
-game.state.add('Game', Game.Game);
+game.state.add('Game', Game.Hanoi);
 
 game.state.start('Game', true, false, settings.MinPieces, settings.InitialSpeedSolve);
