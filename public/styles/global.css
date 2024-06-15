@@ -1,0 +1,29 @@
+@font-face {
+  font-family: "BitBold";
+  font-style: normal;
+  font-weight: normal;
+  font-display: swap;
+  src: url(/fonts/BitBold.ttf) format("truetype");
+}
+
+* {
+  font-family: "BitBold", sans-serif;
+  font-size: 16px;
+}
+
+body {
+  display: grid;
+  height: 100vh;
+  background-color: #4488aa;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  border: 2px black solid;
+}

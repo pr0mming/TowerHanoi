@@ -1,19 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8">
-    <link href="css/style.css" type="text/css" rel="stylesheet">
-    <script type="text/javascript" src="src/phaser.js"></script>
-    <script type="text/javascript" src="src/Stopwatch.js"></script>
-    <script type="text/javascript" src="src/Game.js"></script>
-    <title>Hanoi Tower</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- Preload font to use in Phaser.js, otherwise it will be taken as a fallback (I don't know the reason) -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/ttf"
+      href="/fonts/BitBold.ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="/styles/global.css" />
+
+    <title>Towers of Hanoi</title>
   </head>
   <body>
-      <div id="hanoi-example"></div>
-      <div id="icon">
-        <a href="https://github.com/pr0mming">
-            <img src="resources/icons/github.png" id="github" width="40" height="40" alt="GitHub">
-        </a>
-      </div>
+    <main>
+      <div id="hanoi-container"></div>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+    <!-- Github Button -->
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
   </body>
 </html>
