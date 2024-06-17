@@ -1,4 +1,4 @@
-![hanoi](https://user-images.githubusercontent.com/20020612/56449833-b2013580-62e4-11e9-8ec5-a647b578dc3f.png)
+![hanoi](https://github.com/pr0mming/TowerHanoi/assets/20020612/50a219f7-9fd1-4bbf-862a-9e17e6cb080d)
 
 # Tower of Hanoi-JS
 
