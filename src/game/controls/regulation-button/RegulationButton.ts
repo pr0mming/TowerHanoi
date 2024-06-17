@@ -1,5 +1,7 @@
 import { GameObjects, Scene } from 'phaser';
-import { IconButton } from './IconButton';
+
+// Controls
+import { IconButton } from '@game/controls/regulation-button/IconButton';
 
 interface IAddButton {
   x: number;

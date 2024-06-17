@@ -1,5 +1,7 @@
 import { Scene } from 'phaser';
-import { getInitialGameData } from './common/functions/getInitialGameData';
+
+// Helpers
+import { getInitialGameData } from '@game/common/functions/getInitialGameData';
 
 /**
  * The Preloader of the game, I put here all the required assets to use in the next scenes

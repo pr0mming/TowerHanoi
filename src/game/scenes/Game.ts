@@ -1,14 +1,24 @@
 import { GameObjects, Scene, Time } from 'phaser';
-import { IGameInitialData } from '../common/interfaces/IGameInitialData';
-import { ButtonGroup } from '../controls/button/ButtonGroup';
-import { RegulationButtonGroup } from '../controls/regulation-button/RegulationButton';
-import { TowerGroup } from '../objects/tower/TowerGroup';
-import { DiskGroup } from '../objects/disk/DiskGroup';
-import { Disk } from '../objects/disk/Disk';
-import { Tower } from '../objects/tower/Tower';
-import { IGameInstruction } from '../common/interfaces/IGameInstruction';
-import { GameRulesManager } from '../managers/GameRulesManager';
-import { getInitialGameData } from '../common/functions/getInitialGameData';
+
+// Interfaces
+import { IGameInitialData } from '@game/common/interfaces/IGameInitialData';
+import { IGameInstruction } from '@game/common/interfaces/IGameInstruction';
+
+// Controls
+import { ButtonGroup } from '@game/controls/button/ButtonGroup';
+import { RegulationButtonGroup } from '@game/controls/regulation-button/RegulationButton';
+
+// Objects
+import { Disk } from '@game/objects/disk/Disk';
+import { Tower } from '@game/objects/tower/Tower';
+import { DiskGroup } from '@game/objects/disk/DiskGroup';
+import { TowerGroup } from '@game/objects/tower/TowerGroup';
+
+// Managers
+import { GameRulesManager } from '@game/managers/GameRulesManager';
+
+// Helpers
+import { getInitialGameData } from '@game/common/functions/getInitialGameData';
 
 export class Game extends Scene {
   private _gameData!: IGameInitialData;
@@ -21,7 +31,7 @@ export class Game extends Scene {
 
   private _labels!: GameObjects.Group;
 
-  private _elapsedSeconds: number;
+  private _elapsedSeconds: number; // It's used to keep the seconds elapsed (Idk if there is a better approach)
   private _stopWatch?: Time.TimerEvent;
 
   constructor() {
@@ -96,7 +106,19 @@ export class Game extends Scene {
       },
     });
 
-    //Crear elementos de juego
+    // Game objects
+
+    /*
+      disk 3 ->    --
+      disk 2 ->   ----
+      disk 1 ->  ------
+      disk 0 -> --------
+    */
+
+    /*
+        |        |        |
+      tower 0  tower 1  tower 2
+    */
 
     this._towerGroup = new TowerGroup({
       scene: this,
@@ -104,20 +126,6 @@ export class Game extends Scene {
       diskNumber: this._gameData.disksAmmount,
       towersNumber: this._gameData.towersAmmount,
     });
-
-    //Mapear posiciones
-
-    /*
-            pieza 3 ->    --
-            pieza 2 ->   ----
-            pieza 1 ->  ------
-            pieza 0 -> --------
-        */
-
-    /*
-              |        |        |
-            tower 0  tower 1  tower 2
-        */
 
     this._diskGroup = new DiskGroup({
       scene: this,

@@ -1,11 +1,15 @@
 import { Scene } from 'phaser';
-import { IGameInitialData } from '../common/interfaces/IGameInitialData';
-import { Disk } from '../objects/disk/Disk';
-import { Tower } from '../objects/tower/Tower';
-import { DiskGroup } from '../objects/disk/DiskGroup';
-import { TowerGroup } from '../objects/tower/TowerGroup';
+
+// Intefaces
+import { IGameInitialData } from '@game/common/interfaces/IGameInitialData';
 import { IObjectPosition } from '../common/interfaces/IObjectPosition';
 import { IGameInstruction } from '../common/interfaces/IGameInstruction';
+
+// Objects
+import { Disk } from '@game/objects/disk/Disk';
+import { Tower } from '@game/objects/tower/Tower';
+import { DiskGroup } from '@game/objects/disk/DiskGroup';
+import { TowerGroup } from '@game/objects/tower/TowerGroup';
 
 interface GameRulesManagerProps {
   scene: Scene;

@@ -1,5 +1,7 @@
 import { Physics, Scene } from 'phaser';
-import { Tower } from './Tower';
+
+// Objects
+import { Tower } from '@game/objects/tower/Tower';
 
 interface ITowerGroupProps {
   scene: Scene;

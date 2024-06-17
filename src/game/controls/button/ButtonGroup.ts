@@ -1,5 +1,7 @@
 import { GameObjects, Scene } from 'phaser';
-import { Button } from './Button';
+
+// Controls
+import { Button } from '@game/controls/button/Button';
 
 interface IButtonGroupProps {
   scene: Scene;

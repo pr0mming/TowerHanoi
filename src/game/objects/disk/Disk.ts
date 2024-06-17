@@ -1,5 +1,7 @@
-import { IObjectPosition } from '@src/game/common/interfaces/IObjectPosition';
 import { Physics, Scene } from 'phaser';
+
+// Interfaces
+import { IObjectPosition } from '@src/game/common/interfaces/IObjectPosition';
 
 interface IDiskProps {
   scene: Scene;

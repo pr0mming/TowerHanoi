@@ -1,5 +1,7 @@
 import { Physics, Scene } from 'phaser';
-import { Disk } from './Disk';
+
+// Objects
+import { Disk } from '@game/objects/disk/Disk';
 
 interface IDiskGroupProps {
   scene: Scene;
