@@ -46,7 +46,7 @@ export class DiskGroup extends Physics.Arcade.Group {
         scaleX = this._INITIAL_DISK_X_AXIS_SCALE,
         y = this._INITIAL_Y_AXIS_POSIION;
       i < this._DISK_NUMBER;
-      i++, scaleX -= 0.1, y -= 35
+      i++, scaleX -= 0.1, y -= 33
     ) {
       const { textureKey, tint } = this._getDiskTextureKey(i);
 

@@ -5,7 +5,7 @@ interface ITowerProps {
   x: number;
   y: number;
   towerType: number;
-  pieces: number[];
+  disks: number[];
 }
 
 export class Tower extends Physics.Arcade.Image {
@@ -13,7 +13,7 @@ export class Tower extends Physics.Arcade.Image {
 
   private _disks: number[];
 
-  constructor({ scene, x, y, towerType, pieces }: ITowerProps) {
+  constructor({ scene, x, y, towerType, disks: pieces }: ITowerProps) {
     super(scene, x, y, 'tower');
 
     scene.physics.add.existing(this);

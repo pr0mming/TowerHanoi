@@ -13,7 +13,7 @@ const config: Phaser.Types.Core.GameConfig = {
   antialias: true,
   physics: {
     default: 'arcade',
-    arcade: { debug: true },
+    //arcade: { debug: true },
   },
   scene: [Boot, Preloader, TowerHanoiGame],
 };

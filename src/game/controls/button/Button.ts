@@ -15,11 +15,18 @@ export class Button extends GameObjects.Sprite {
 
     this.name = name;
 
+    this.setDepth(0);
     this.setScrollFactor(0, 0);
     this.setScale(2, 1.5);
 
     // Add text
-    scene.add.text(this.getCenter().x, y + 7, text);
+    this.scene.add
+      .text(this.getCenter().x, this.getCenter().y, text)
+      .setFontFamily('"BitBold", "Tahoma"')
+      .setFontSize(12)
+      .setColor('black')
+      .setOrigin(0.5)
+      .setDepth(1);
 
     this.enableInteraction();
     this._setUpEvents(onPointerDownEvent);

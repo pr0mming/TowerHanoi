@@ -13,8 +13,6 @@ import { getInitialGameData } from '../common/functions/getInitialGameData';
 export class Game extends Scene {
   private _gameData!: IGameInitialData;
 
-  private _solve: IGameInstruction[] = [];
-
   private _gameRulesManager!: GameRulesManager;
 
   private _buttonsGroup!: ButtonGroup;
@@ -39,11 +37,6 @@ export class Game extends Scene {
   create() {
     this.cameras.main.setBounds(0, 0, 900, 600);
 
-    this._gameRulesManager = new GameRulesManager({
-      scene: this,
-      gameData: this._gameData,
-    });
-
     //Crear botones
 
     this._buttonsGroup = new ButtonGroup({
@@ -51,23 +44,23 @@ export class Game extends Scene {
     });
 
     this._buttonsGroup.addButton({
-      x: 250,
-      y: 540,
+      x: this.cameras.main.centerX - 100,
+      y: 620,
       text: 'Solve',
       name: 'SOLVE',
       onPointerDownEvent: () => {
-        this.clickSolve();
+        this.handleSolveClick();
       },
     });
 
     this._buttonsGroup.addButton({
-      x: 400,
-      y: 540,
+      x: this.cameras.main.centerX + 100,
+      y: 620,
       text: 'Restart',
       name: 'RESTART',
       onPointerDownEvent: () => {
-        this._gameData = getInitialGameData();
-        this.scene.restart(this._gameData);
+        const gameData = getInitialGameData();
+        this.scene.start('Game', gameData);
       },
     });
 
@@ -80,8 +73,8 @@ export class Game extends Scene {
     });
 
     regulationBtnGroup.addButton({
-      x: 550,
-      y: 22,
+      x: 560,
+      y: 30,
       text: 'PIECES: ' + this._gameData.disksAmmount,
       pointerDownUpEvent: () => {
         this._gameRulesManager.upDisksAmmount();
@@ -92,8 +85,8 @@ export class Game extends Scene {
     });
 
     regulationBtnGroup.addButton({
-      x: 720,
-      y: 22,
+      x: 750,
+      y: 30,
       text: 'SPEED: ' + this._gameData.speed,
       pointerDownUpEvent: () => {
         this._gameRulesManager.upSpeed();
@@ -108,7 +101,8 @@ export class Game extends Scene {
     this._towerGroup = new TowerGroup({
       scene: this,
       world: this.physics.world,
-      towersNumber: 3,
+      diskNumber: this._gameData.disksAmmount,
+      towersNumber: this._gameData.towersAmmount,
     });
 
     //Mapear posiciones
@@ -128,18 +122,23 @@ export class Game extends Scene {
     this._diskGroup = new DiskGroup({
       scene: this,
       world: this.physics.world,
-      diskNumber: 6,
+      diskNumber: this._gameData.disksAmmount,
       onDragLeave: (disk: Disk) => {
         this.validateHanoi(disk);
       },
+    });
+
+    this._gameRulesManager = new GameRulesManager({
+      scene: this,
+      gameData: this._gameData,
+      diskGroup: this._diskGroup,
+      towerGroup: this._towerGroup,
     });
 
     this.input.on(Phaser.Input.Events.DRAG_START, () => {
       if (this._stopWatch === undefined || this._stopWatch?.paused) {
         this._setUpTimer();
       }
-
-      //this._buttonSolve.inputEnabled = false;
     });
   }
 
@@ -177,32 +176,15 @@ export class Game extends Scene {
         disk,
         this._towerGroup,
         (_, tower) => {
-          const _tower = tower as Tower;
-
           // Ubicar pieza en la torre (visualmente)
 
-          disk.x = _tower.getCenter().x;
+          const { x, y } = this._gameRulesManager.computeDiskPosition(
+            disk,
+            tower as Tower
+          );
 
-          if (_tower.disks.length === 0) {
-            disk.y = _tower.getBottomCenter().y - 40;
-          } else {
-            const firstDiskTypeTarget = _tower.disks[_tower.disks.length - 1];
-
-            const firstDiskTarget =
-              this._diskGroup.getByType(firstDiskTypeTarget);
-
-            disk.y = firstDiskTarget.getBottomCenter().y - 50;
-          }
-
-          disk.currentPosition = { x: disk.x, y: disk.y }; // Guardar posición actual
-
-          const originTower = this._towerGroup.getByIndex(disk.towerOwner);
-          const firstDiskTypeOrigin = originTower.disks.pop(); // Eliminar primera pieza de la torre antigua
-
-          if (firstDiskTypeOrigin !== undefined) {
-            _tower.disks = [..._tower.disks, firstDiskTypeOrigin]; // Poner la pieza en la nueva torre
-            disk.towerOwner = _tower.towerType; // Guarda la torre en que se puso la pieza
-          }
+          disk.x = x;
+          disk.y = y;
 
           this._gameData.attemps++;
 
@@ -213,20 +195,17 @@ export class Game extends Scene {
 
           // Win?
 
-          if (this.winUser()) {
+          if (this._gameRulesManager.hasFinished()) {
             this._buttonsGroup.getByName('SOLVE').disableInteractive();
             this._diskGroup.setInteractive(false);
+
+            if (this._stopWatch) this._stopWatch.paused = true;
 
             this._showEndGameLabel('WIN!');
           }
         },
         (_, tower) => {
-          const _tower = tower as Tower;
-
-          return (
-            _tower.disks.length === 0 ||
-            disk.diskType > _tower.disks[_tower.disks.length - 1]
-          );
+          return this._gameRulesManager.isDiskOverlaped(disk, tower as Tower);
         },
         this
       )
@@ -242,13 +221,14 @@ export class Game extends Scene {
     if (this._stopWatch) this._stopWatch.paused = true;
 
     const stWin = this.add
-      .text(400, 50, text)
+      .text(this.cameras.main.centerX, 120, text)
       .setFontFamily('"BitBold", "Tahoma"')
-      .setFontSize(15)
+      .setFontSize(20)
       .setColor('white')
       .setStroke('black', 2.5)
       .setScrollFactor(0, 0)
-      .setAlpha(0);
+      .setAlpha(0)
+      .setOrigin(0.5);
 
     this.tweens.add({
       targets: stWin,
@@ -261,150 +241,50 @@ export class Game extends Scene {
     });
   }
 
-  recursionHanoi(
-    n: number,
-    origin: number,
-    destination: number,
-    auxiliary: number
-  ) {
-    if (n == this._gameData.disksAmmount - 1) {
-      this._solve.push({
-        disk: n,
-        originTower: origin,
-        targetTower: destination,
-      });
-    } else {
-      this.recursionHanoi(n + 1, origin, auxiliary, destination);
-
-      this._solve.push({
-        disk: n,
-        originTower: origin,
-        targetTower: destination,
-      });
-
-      this.recursionHanoi(n + 1, auxiliary, destination, origin);
-    }
-  }
-
-  winUser() {
-    const tower = this._towerGroup.getByIndex(this._towerGroup.getLength() - 1);
-
-    const disks = tower.disks;
-
-    if (disks.length === this._gameData.disksAmmount) return true;
-
-    return false;
-  }
-
-  clickSolve() {
-    this.recursionHanoi(0, 0, 2, 1);
-
+  handleSolveClick() {
     this._diskGroup.setInteractive(false);
     this._buttonsGroup.setInteractive(false);
 
+    const instructions: IGameInstruction[] = [];
+    this._gameRulesManager.getSolutionInstructions(0, 0, 2, 1, instructions);
+
     this._setUpTimer();
 
-    const instructions = this.getInstructions();
-
-    this._stopWatch = this.time.addEvent({
-      delay: this._gameData.speed,
-      callback: () => {
-        const o = instructions.next();
-
-        if (o.value) {
-          const disk = this._diskGroup.getByType(o.value.disk),
-            tower = this._towerGroup.getByIndex(o.value.targetTower);
-
-          this._gameData.attemps++;
-
-          this._setLabelTextByKey(
-            'ATTEMPS',
-            'MOVEMENTS: ' + this._gameData.attemps
-          );
-
-          if (tower.disks.length === 0) {
-            const originTower = this._towerGroup.getByIndex(disk.towerOwner);
-
-            const firstDiskTypeOrigin = originTower.disks.shift(); // Eliminar primera pieza de la torre antigua
-
-            if (firstDiskTypeOrigin !== undefined) {
-              tower.disks = [firstDiskTypeOrigin, ...tower.disks]; // Poner la pieza en la nueva torre
-              disk.towerOwner = tower.towerType; // Guarda la torre en que se puso la pieza
-            }
-
-            // Ubicar pieza en la torre (visualmente)
-
-            if (tower.body) {
-              let diskY = 0;
-
-              if (tower.disks.length === 0) {
-                diskY = tower.body.bottom - 10;
-              } else {
-                const [firstDiskTypeTarget] = tower.disks;
-
-                const firstDiskTarget =
-                  this._diskGroup.getByType(firstDiskTypeTarget);
-
-                diskY = (firstDiskTarget.body?.center.y ?? 0) - 33;
-              }
-
-              this.tweens.add({
-                targets: disk,
-                props: {
-                  x: tower.body.center.x,
-                  y: diskY,
-                },
-                ease: 'Sine.easeInOut',
-                yoyo: true,
-                repeat: -1,
-              });
-            }
-
-            disk.currentPosition = { x: disk.x, y: disk.y }; // Guardar posición actual
-
-            this._gameData.attemps++;
-
-            this._setLabelTextByKey(
-              'MOVEMENTS',
-              'MOVEMENTS: ' + this._gameData.attemps
-            );
-          } else {
-            // if (tower._pieces[0] < piece._typePiece) {
-            //   this._towers.getAt(piece._typeTower)._pieces.shift(); // Eliminar primera pieza de la torre antigua
-            //   tower._pieces.splice(0, 0, piece._typePiece); // Poner la pieza en la nueva torre
-            //   piece._typeTower = this._towers.getIndex(tower); // Guarda la torre en que se puso la pieza
-            //   // Ubicar pieza en la torre (visualmente)
-            //   //piece.x = tower._standar[piece._typePiece].x;
-            //   //piece.y = tower._standar[tower._pieces.length - 1].y;
-            //   this.add.tween(piece).to(
-            //     {
-            //       x: tower._standar[piece._typePiece].x,
-            //       y: tower._standar[tower._pieces.length - 1].y,
-            //     },
-            //     100,
-            //     'Quart.easeOut',
-            //     true
-            //   );
-            //   piece._oldPosition = { x: piece.x, y: piece.y }; // Guardar posición actual
-            // } else {
-            //   piece.x = piece._oldPosition.x;
-            //   piece.y = piece._oldPosition.y;
-            // }
-          }
-        } else {
-          this._buttonsGroup.getByName('RESTART').enableInteraction();
-
-          this._showEndGameLabel('FINISHED!');
-        }
-      },
-      loop: true,
-      callbackScope: this,
-    });
+    this.processGameInstruction(instructions, 0);
   }
 
-  *getInstructions() {
-    for (const instruction of this._solve) {
-      yield instruction;
+  processGameInstruction(instructions: IGameInstruction[], index: number) {
+    if (index < instructions.length) {
+      const o = instructions[index];
+
+      const disk = this._diskGroup.getByType(o.disk);
+      const tower = this._towerGroup.getByIndex(o.targetTower);
+
+      const { x, y } = this._gameRulesManager.computeDiskPosition(disk, tower);
+
+      this.tweens.add({
+        targets: disk,
+        duration: this._gameData.speed,
+        props: {
+          x,
+          y,
+        },
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+          this.processGameInstruction(instructions, index + 1);
+        },
+      });
+
+      this._gameData.attemps++;
+
+      this._setLabelTextByKey(
+        'MOVEMENTS',
+        'MOVEMENTS: ' + this._gameData.attemps
+      );
+    } else {
+      this._buttonsGroup.getByName('RESTART').enableInteraction();
+
+      this._showEndGameLabel('FINISHED!');
     }
   }
 

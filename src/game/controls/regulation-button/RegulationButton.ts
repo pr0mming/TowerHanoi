@@ -25,28 +25,8 @@ export class RegulationButtonGroup extends GameObjects.Group {
     pointerDownUpEvent,
     pointerDownDownEvent,
   }: IAddButton) {
-    const newUpButton = new IconButton({
-      scene: this.scene,
-      x,
-      y,
-      angle: 0,
-      pointerDownEvent: pointerDownUpEvent,
-    });
-
-    this.add(newUpButton, true);
-
-    const newDownButton = new IconButton({
-      scene: this.scene,
-      x,
-      y: y + 12,
-      angle: 180,
-      pointerDownEvent: pointerDownDownEvent,
-    });
-
-    this.add(newDownButton, true);
-
     const newLabel = this.scene.add
-      .text(x + 70, newDownButton.getCenter().y - 5, text)
+      .text(x, y, text)
       .setFontFamily('"BitBold", "Tahoma"')
       .setFontSize(15)
       .setColor('white')
@@ -54,5 +34,25 @@ export class RegulationButtonGroup extends GameObjects.Group {
       .setOrigin(0.5);
 
     this.add(newLabel, true);
+
+    const newDownButton = new IconButton({
+      scene: this.scene,
+      x: newLabel.getRightCenter().x + 20,
+      y,
+      angle: 180,
+      pointerDownEvent: pointerDownDownEvent,
+    });
+
+    this.add(newDownButton, true);
+
+    const newUpButton = new IconButton({
+      scene: this.scene,
+      x: newLabel.getRightCenter().x + 38,
+      y,
+      angle: 0,
+      pointerDownEvent: pointerDownUpEvent,
+    });
+
+    this.add(newUpButton, true);
   }
 }

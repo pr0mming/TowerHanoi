@@ -4,6 +4,7 @@ import { Tower } from './Tower';
 interface ITowerGroupProps {
   scene: Scene;
   world: Physics.Arcade.World;
+  diskNumber: number;
   towersNumber: number;
 }
 
@@ -14,7 +15,7 @@ export class TowerGroup extends Physics.Arcade.Group {
   private readonly _INTERVAL_X_AXIS_OFFSET: number;
   private readonly _TOWERS_NUMBER: number;
 
-  constructor({ scene, world, towersNumber }: ITowerGroupProps) {
+  constructor({ scene, world, diskNumber, towersNumber }: ITowerGroupProps) {
     super(world, scene);
 
     this.classType = Tower;
@@ -25,10 +26,10 @@ export class TowerGroup extends Physics.Arcade.Group {
     this._INTERVAL_X_AXIS_OFFSET = 300;
     this._TOWERS_NUMBER = towersNumber;
 
-    this._setUp();
+    this._setUp(diskNumber);
   }
 
-  private _setUp() {
+  private _setUp(diskNumber: number) {
     for (
       let i = 0, x = this._INITIAL_X_AXIS_POSIION;
       i < this._TOWERS_NUMBER;
@@ -39,7 +40,7 @@ export class TowerGroup extends Physics.Arcade.Group {
         x,
         y: this._INITIAL_Y_AXIS_POSIION,
         towerType: i,
-        pieces: i === 0 ? Array.from(Array(6).keys()) : [],
+        disks: i === 0 ? Array.from(Array(diskNumber).keys()) : [],
       });
 
       this.add(newTower, true);
