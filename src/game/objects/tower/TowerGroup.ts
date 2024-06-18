@@ -10,11 +10,14 @@ interface ITowerGroupProps {
   towersNumber: number;
 }
 
+/**
+ * This method represents the array of the towers
+ */
 export class TowerGroup extends Physics.Arcade.Group {
   private readonly _INITIAL_X_AXIS_POSIION: number;
   private readonly _INITIAL_Y_AXIS_POSIION: number;
 
-  private readonly _INTERVAL_X_AXIS_OFFSET: number;
+  private readonly _INTERVAL_X_AXIS_OFFSET: number; // Used to increment horizontally
   private readonly _TOWERS_NUMBER: number;
 
   constructor({ scene, world, diskNumber, towersNumber }: ITowerGroupProps) {
@@ -32,6 +35,7 @@ export class TowerGroup extends Physics.Arcade.Group {
   }
 
   private _setUp(diskNumber: number) {
+    // Loop to place each tower
     for (
       let i = 0, x = this._INITIAL_X_AXIS_POSIION;
       i < this._TOWERS_NUMBER;
@@ -42,7 +46,7 @@ export class TowerGroup extends Physics.Arcade.Group {
         x,
         y: this._INITIAL_Y_AXIS_POSIION,
         towerType: i,
-        disks: i === 0 ? Array.from(Array(diskNumber).keys()) : [],
+        disks: i === 0 ? Array.from(Array(diskNumber).keys()) : [], // The first tower has always all the disks
       });
 
       this.add(newTower, true);

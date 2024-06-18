@@ -1,4 +1,4 @@
-import { GameObjects, Scene, Time } from 'phaser';
+import { Scene, Time } from 'phaser';
 
 // Interfaces
 import { IGameInitialData } from '@game/common/interfaces/IGameInitialData';
@@ -7,6 +7,7 @@ import { IGameInstruction } from '@game/common/interfaces/IGameInstruction';
 // Controls
 import { ButtonGroup } from '@game/controls/button/ButtonGroup';
 import { RegulationButtonGroup } from '@game/controls/regulation-button/RegulationButton';
+import { LabelGroup } from '@game/controls/label/LabelGroup';
 
 // Objects
 import { Disk } from '@game/objects/disk/Disk';
@@ -25,29 +26,27 @@ export class Game extends Scene {
 
   private _gameRulesManager!: GameRulesManager;
 
+  private _labelGroup!: LabelGroup;
   private _buttonsGroup!: ButtonGroup;
   private _towerGroup!: TowerGroup;
   private _diskGroup!: DiskGroup;
 
-  private _labels!: GameObjects.Group;
-
-  private _elapsedSeconds: number; // It's used to keep the seconds elapsed (Idk if there is a better approach)
+  private _elapsedSeconds: number = 0; // It's used to keep the seconds elapsed (Idk if there is a better approach)
   private _stopWatch?: Time.TimerEvent;
 
   constructor() {
     super('Game');
-
-    this._elapsedSeconds = 0;
   }
 
   init(gameData: IGameInitialData) {
     this._gameData = gameData;
+    this._elapsedSeconds = 0;
   }
 
   create() {
     this.cameras.main.setBounds(0, 0, 900, 600);
 
-    //Crear botones
+    // Create control buttons
 
     this._buttonsGroup = new ButtonGroup({
       scene: this,
@@ -70,13 +69,18 @@ export class Game extends Scene {
       name: 'RESTART',
       onPointerDownEvent: () => {
         const gameData = getInitialGameData();
-        this.scene.start('Game', gameData);
+        this.scene.restart(gameData);
       },
     });
 
-    //Crear controles de juego
+    // Create labels
 
-    this.setUpLabels();
+    this._labelGroup = new LabelGroup({
+      scene: this,
+      gameData: this._gameData,
+    });
+
+    // Create regulation buttons
 
     const regulationBtnGroup = new RegulationButtonGroup({
       scene: this,
@@ -108,17 +112,13 @@ export class Game extends Scene {
 
     // Game objects
 
-    /*
-      disk 3 ->    --
-      disk 2 ->   ----
-      disk 1 ->  ------
-      disk 0 -> --------
-    */
+    // disk 3 ->    --
+    // disk 2 ->   ----
+    // disk 1 ->  ------
+    // disk 0 -> --------
 
-    /*
-        |        |        |
-      tower 0  tower 1  tower 2
-    */
+    //   |        |        |
+    // tower 0  tower 1  tower 2
 
     this._towerGroup = new TowerGroup({
       scene: this,
@@ -131,11 +131,12 @@ export class Game extends Scene {
       scene: this,
       world: this.physics.world,
       diskNumber: this._gameData.disksAmmount,
-      onDragLeave: (disk: Disk) => {
+      onDragEnd: (disk: Disk) => {
         this.validateHanoi(disk);
       },
     });
 
+    // Add game rules logic
     this._gameRulesManager = new GameRulesManager({
       scene: this,
       gameData: this._gameData,
@@ -144,20 +145,27 @@ export class Game extends Scene {
     });
 
     this.input.on(Phaser.Input.Events.DRAG_START, () => {
-      if (this._stopWatch === undefined || this._stopWatch?.paused) {
-        this._setUpTimer();
+      if (this._elapsedSeconds === 0) {
+        this.restartStopwatch();
+
+        this.input.removeListener(Phaser.Input.Events.DRAG_START);
       }
     });
+
+    // Prepare timer to reuse
+    this.setUpTimer();
   }
 
-  private _setUpTimer() {
-    this._elapsedSeconds = 0;
-
-    this._stopWatch = this.time.addEvent({
+  /**
+   * This method to prepares the stopwatch instance
+   */
+  setUpTimer() {
+    this._stopWatch = new Phaser.Time.TimerEvent({
       delay: 1000,
       callback: () => {
         const elapsedSeconds = this._elapsedSeconds;
 
+        // Show time format
         const hours = Math.floor(elapsedSeconds / 3600);
         const minutes = Math.floor((elapsedSeconds % 3600) / 60);
         const seconds = elapsedSeconds % 60;
@@ -169,7 +177,7 @@ export class Game extends Scene {
           ':' +
           String(seconds).padStart(2, '0');
 
-        this._setLabelTextByKey('TIME', `TIME: ${timeFormat}`);
+        this._labelGroup.setTextByKey('TIME', `TIME: ${timeFormat}`);
 
         this._elapsedSeconds++;
       },
@@ -178,13 +186,17 @@ export class Game extends Scene {
     });
   }
 
+  restartStopwatch() {
+    if (this._stopWatch) this.time.addEvent(this._stopWatch);
+  }
+
   validateHanoi(disk: Disk) {
     if (
       !this.physics.overlap(
         disk,
         this._towerGroup,
         (_, tower) => {
-          // Ubicar pieza en la torre (visualmente)
+          // Calculate x, y position and set the sprite visually
 
           const { x, y } = this._gameRulesManager.computeDiskPosition(
             disk,
@@ -196,12 +208,12 @@ export class Game extends Scene {
 
           this._gameData.attemps++;
 
-          this._setLabelTextByKey(
+          this._labelGroup.setTextByKey(
             'ATTEMPS',
             'MOVEMENTS: ' + this._gameData.attemps
           );
 
-          // Win?
+          // Check if user has won
 
           if (this._gameRulesManager.hasFinished()) {
             this._buttonsGroup.getByName('SOLVE').disableInteractive();
@@ -209,7 +221,7 @@ export class Game extends Scene {
 
             if (this._stopWatch) this._stopWatch.paused = true;
 
-            this._showEndGameLabel('WIN!');
+            this._labelGroup.showEndGameLabel('YOU WON!');
           }
         },
         (_, tower) => {
@@ -218,46 +230,30 @@ export class Game extends Scene {
         this
       )
     ) {
-      //Volver a la posición anterior en caso de no poner la ficha en una torre
+      // Put back the sprite where it was (invalid movement case)
 
       disk.x = disk.currentPosition.x;
       disk.y = disk.currentPosition.y;
     }
   }
 
-  private _showEndGameLabel(text: string) {
-    if (this._stopWatch) this._stopWatch.paused = true;
-
-    const stWin = this.add
-      .text(this.cameras.main.centerX, 120, text)
-      .setFontFamily('"BitBold", "Tahoma"')
-      .setFontSize(20)
-      .setColor('white')
-      .setStroke('black', 2.5)
-      .setScrollFactor(0, 0)
-      .setAlpha(0)
-      .setOrigin(0.5);
-
-    this.tweens.add({
-      targets: stWin,
-      props: {
-        alpha: 1,
-      },
-      ease: 'Sine.easeInOut',
-      yoyo: true,
-      repeat: -1,
-    });
-  }
-
+  /**
+   * This method dispatch the logic to solve the game from any position
+   */
   handleSolveClick() {
+    // Disable buttons while is solving
     this._diskGroup.setInteractive(false);
     this._buttonsGroup.setInteractive(false);
 
+    // Get set of instructions array
     const instructions: IGameInstruction[] = [];
     this._gameRulesManager.getSolutionInstructions(0, 0, 2, 1, instructions);
 
-    this._setUpTimer();
+    if (this._elapsedSeconds === 0) {
+      this.restartStopwatch();
+    }
 
+    // Put sprites visually
     this.processGameInstruction(instructions, 0);
   }
 
@@ -279,58 +275,25 @@ export class Game extends Scene {
         },
         ease: 'Sine.easeInOut',
         onComplete: () => {
+          // Recall again for the next instruction ...
           this.processGameInstruction(instructions, index + 1);
         },
       });
 
       this._gameData.attemps++;
 
-      this._setLabelTextByKey(
-        'MOVEMENTS',
+      this._labelGroup.setTextByKey(
+        'ATTEMPS',
         'MOVEMENTS: ' + this._gameData.attemps
       );
     } else {
+      // Has finished
+
       this._buttonsGroup.getByName('RESTART').enableInteraction();
 
-      this._showEndGameLabel('FINISHED!');
-    }
-  }
+      if (this._stopWatch) this._stopWatch.paused = true;
 
-  setUpLabels() {
-    const style = {
-      font: '15px BitBold',
-      fill: 'white',
-      stroke: 'black',
-      strokeThickness: 2.5,
-    };
-
-    this._labels = this.add.group();
-
-    const attempsLabel = this.add.text(
-      50,
-      22,
-      'MOVEMENTS: ' + this._gameData.attemps,
-      style
-    );
-
-    attempsLabel.name = 'ATTEMPS';
-    attempsLabel.setScrollFactor(0, 0);
-
-    this._labels.add(attempsLabel, true);
-
-    const timeLabel = this.add.text(230, 22, 'TIME: 00:00:00', style);
-
-    timeLabel.name = 'TIME';
-    timeLabel.setScrollFactor(0, 0);
-
-    this._labels.add(timeLabel, true);
-  }
-
-  private _setLabelTextByKey(keyName: string, value: string) {
-    const _label = this._labels.getMatching('name', keyName)[0];
-
-    if (_label) {
-      (_label as GameObjects.Text).setText(value);
+      this._labelGroup.showEndGameLabel('FINISHED!');
     }
   }
 }

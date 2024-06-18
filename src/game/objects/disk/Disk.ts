@@ -12,9 +12,12 @@ interface IDiskProps {
   tint: number;
   diskType: number;
   towerOwner: number;
-  onDragLeave: (disk: Disk) => void;
+  onDragEnd: (disk: Disk) => void;
 }
 
+/**
+ * This method represents a disk to put over a tower
+ */
 export class Disk extends Physics.Arcade.Image {
   private readonly _diskType: number;
   private _towerOwner: number;
@@ -30,7 +33,7 @@ export class Disk extends Physics.Arcade.Image {
     tint,
     diskType,
     towerOwner,
-    onDragLeave,
+    onDragEnd,
   }: IDiskProps) {
     super(scene, x, y, textureKey);
 
@@ -41,16 +44,21 @@ export class Disk extends Physics.Arcade.Image {
 
     this._currentPosition = { x, y };
 
-    this.setTint(tint);
+    this.setTint(tint); // Little hack to have different colors of disks (because there is limited colors)
     this.setScale(scaleX, 0.6);
     this.setBodySize(this.width - 60, this.height);
 
-    this._setUpEvents(onDragLeave);
+    this._setUpEvents(onDragEnd);
   }
 
-  private _setUpEvents(onDragLeave: (disk: Disk) => void) {
+  /**
+   * This method prepares the events to allow use the pointer to move a disk
+   * @param onDragEnd callback of drag end event
+   */
+  private _setUpEvents(onDragEnd: (disk: Disk) => void) {
     this.enableInteraction();
 
+    // Update sprite position using the pointer
     this.on(
       Phaser.Input.Events.DRAG,
       (_: unknown, dragX: number, dragY: number) => {
@@ -59,11 +67,15 @@ export class Disk extends Physics.Arcade.Image {
       }
     );
 
+    // Is necessary a callback to process large logic of collisions
     this.on(Phaser.Input.Events.DRAG_END, () => {
-      onDragLeave(this);
+      onDragEnd(this);
     });
   }
 
+  /**
+   * This method enable the interaction for the sprite
+   */
   enableInteraction() {
     this.setInteractive({
       useHandCursor: true,

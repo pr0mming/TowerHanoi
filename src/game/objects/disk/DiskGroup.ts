@@ -7,7 +7,7 @@ interface IDiskGroupProps {
   scene: Scene;
   world: Physics.Arcade.World;
   diskNumber: number;
-  onDragLeave: (disk: Disk) => void;
+  onDragEnd: (disk: Disk) => void;
 }
 
 export class DiskGroup extends Physics.Arcade.Group {
@@ -19,7 +19,7 @@ export class DiskGroup extends Physics.Arcade.Group {
 
   private readonly _DISK_TEXTURES: string[];
 
-  constructor({ scene, world, diskNumber, onDragLeave }: IDiskGroupProps) {
+  constructor({ scene, world, diskNumber, onDragEnd }: IDiskGroupProps) {
     super(world, scene);
 
     this.classType = Disk;
@@ -39,10 +39,10 @@ export class DiskGroup extends Physics.Arcade.Group {
       'pieceBrown',
     ];
 
-    this._setUp(onDragLeave);
+    this._setUp(onDragEnd);
   }
 
-  private _setUp(onDragLeave: (disk: Disk) => void) {
+  private _setUp(onDragEnd: (disk: Disk) => void) {
     for (
       let i = 0,
         scaleX = this._INITIAL_DISK_X_AXIS_SCALE,
@@ -61,7 +61,7 @@ export class DiskGroup extends Physics.Arcade.Group {
         tint,
         diskType: i,
         towerOwner: 0,
-        onDragLeave,
+        onDragEnd,
       });
 
       this.add(newDisk, true);

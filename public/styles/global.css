@@ -23,3 +23,7 @@ main {
   justify-content: center;
   align-items: center;
 }
+
+#game-controls {
+  margin: 0 auto;
+}

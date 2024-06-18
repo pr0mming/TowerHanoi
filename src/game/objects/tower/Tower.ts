@@ -8,6 +8,9 @@ interface ITowerProps {
   disks: number[];
 }
 
+/**
+ * This class represents a tower of the game
+ */
 export class Tower extends Physics.Arcade.Image {
   private readonly _towerType: number;
 
@@ -22,6 +25,8 @@ export class Tower extends Physics.Arcade.Image {
     this._disks = pieces;
 
     this.setScale(0.6, 0.6);
+
+    // Adjust the physics body to detect better the collisions
     this.setBodySize(this.width - 60, this.height - 20);
   }
 
