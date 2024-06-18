@@ -8,6 +8,9 @@ interface ILabelProps {
   nameKey: string;
 }
 
+/**
+ * This class represents a label
+ */
 export class Label extends GameObjects.Text {
   constructor({ scene, x, y, text, nameKey }: ILabelProps) {
     super(scene, x, y, text, {});

@@ -15,6 +15,9 @@ interface IRegulationButtonGroupProps {
   scene: Scene;
 }
 
+/**
+ * This class represents a button with arrows next to
+ */
 export class RegulationButtonGroup extends GameObjects.Group {
   constructor({ scene }: IRegulationButtonGroupProps) {
     super(scene);
@@ -37,6 +40,7 @@ export class RegulationButtonGroup extends GameObjects.Group {
 
     this.add(newLabel, true);
 
+    // Arrow down
     const newDownButton = new IconButton({
       scene: this.scene,
       x: newLabel.getRightCenter().x + 20,
@@ -47,6 +51,7 @@ export class RegulationButtonGroup extends GameObjects.Group {
 
     this.add(newDownButton, true);
 
+    // Arrow up
     const newUpButton = new IconButton({
       scene: this.scene,
       x: newLabel.getRightCenter().x + 38,

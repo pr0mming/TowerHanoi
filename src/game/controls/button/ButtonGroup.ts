@@ -15,10 +15,14 @@ interface IAddButton {
   onPointerDownEvent: () => void;
 }
 
+/**
+ * This class represents an array of buttons
+ */
 export class ButtonGroup extends GameObjects.Group {
   constructor({ scene }: IButtonGroupProps) {
     super(scene);
 
+    // Add animations to make hover effect
     scene.anims.create({
       key: 'button-state',
       frames: scene.anims.generateFrameNumbers('button'),
@@ -45,6 +49,10 @@ export class ButtonGroup extends GameObjects.Group {
     return button as Button;
   }
 
+  /**
+   * This method is to disable or enable the drag event for all the buttons
+   * @param enable `true` to enable, otherwise it will disable the event
+   */
   setInteractive(enable: boolean) {
     this.getChildren().forEach((button) => {
       const _button = button as Button;

@@ -11,7 +11,7 @@ interface ITowerGroupProps {
 }
 
 /**
- * This method represents the array of the towers
+ * This class represents the array of the towers
  */
 export class TowerGroup extends Physics.Arcade.Group {
   private readonly _INITIAL_X_AXIS_POSIION: number;

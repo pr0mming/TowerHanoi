@@ -8,6 +8,9 @@ interface IIconButtonProps {
   pointerDownEvent: () => void;
 }
 
+/**
+ * This class represetns an icon button (arrow)
+ */
 export class IconButton extends GameObjects.Image {
   constructor({ scene, x, y, angle, pointerDownEvent }: IIconButtonProps) {
     super(scene, x, y, 'iconDrop');

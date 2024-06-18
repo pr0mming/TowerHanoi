@@ -9,6 +9,9 @@ interface IButtonProps {
   onPointerDownEvent: () => void;
 }
 
+/**
+ * This class represents a button
+ */
 export class Button extends GameObjects.Sprite {
   constructor({ scene, x, y, text, name, onPointerDownEvent }: IButtonProps) {
     super(scene, x, y, 'button');
@@ -19,7 +22,7 @@ export class Button extends GameObjects.Sprite {
     this.setScrollFactor(0, 0);
     this.setScale(2, 1.5);
 
-    // Add text
+    // Add label on the button
     this.scene.add
       .text(this.getCenter().x, this.getCenter().y, text)
       .setFontFamily('"BitBold", "Tahoma"')
@@ -32,6 +35,10 @@ export class Button extends GameObjects.Sprite {
     this._setUpEvents(onPointerDownEvent);
   }
 
+  /**
+   * Add hover in and out effect to the button using textures
+   * @param onPointerDownEvent click handler callback
+   */
   private _setUpEvents(onPointerDownEvent: () => void) {
     const frames = this.scene.anims.get('button-state').frames;
 
@@ -51,7 +58,6 @@ export class Button extends GameObjects.Sprite {
         },
         this
       )
-      // Event to start a new game
       .on(
         Phaser.Input.Events.POINTER_DOWN,
         () => {

@@ -11,6 +11,9 @@ interface ILabelGroupProps {
   gameData: IGameInitialData;
 }
 
+/**
+ * This class represents an array of labels
+ */
 export class LabelGroup extends GameObjects.Group {
   private _gameData: IGameInitialData;
 
@@ -53,6 +56,10 @@ export class LabelGroup extends GameObjects.Group {
     this.add(timeLabel, true);
   }
 
+  /**
+   * This method shows a little message when the user wins or is solved the game
+   * @param text
+   */
   showEndGameLabel(text: string) {
     const stWin = new Label({
       scene: this.scene,

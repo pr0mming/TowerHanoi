@@ -16,7 +16,7 @@ interface IDiskProps {
 }
 
 /**
- * This method represents a disk to put over a tower
+ * This class represents a disk to put over a tower
  */
 export class Disk extends Physics.Arcade.Image {
   private readonly _diskType: number;

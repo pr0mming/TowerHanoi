@@ -18,6 +18,9 @@ interface GameRulesManagerProps {
   towerGroup: TowerGroup;
 }
 
+/**
+ * This class represents the business logic of the game (move disks and check when to win)
+ */
 export class GameRulesManager {
   private _scene: Scene;
   private _gameData: IGameInitialData;
@@ -45,6 +48,7 @@ export class GameRulesManager {
     this._diskGroup = diskGroup;
     this._towerGroup = towerGroup;
 
+    // Use these values carefully with the "getInitialGameData" helper
     this._MIN_DISK_AMMOUNT = 3;
     this._MAX_DISK_AMMOUNT = 8;
 
@@ -90,6 +94,14 @@ export class GameRulesManager {
     }
   }
 
+  /**
+   * This method uses recursion to returns an array of instructions to place X disk in Y tower
+   * @param n disk to move, it should be 0
+   * @param origin origin tower, it should be 0
+   * @param destination destination tower, it should be the last one (2)
+   * @param auxiliary it's the support tower, normally the one in the middle (1)
+   * @param instructions array of solutions, it should be empty
+   */
   getSolutionInstructions(
     n: number,
     origin: number,
@@ -128,13 +140,21 @@ export class GameRulesManager {
     }
   }
 
+  /**
+   * This method returns X, Y position to put visually the disk
+   * @param disk disk to move
+   * @param tower destination tower
+   * @returns X, Y position to move the sprite
+   */
   computeDiskPosition(disk: Disk, tower: Tower): IObjectPosition {
     const x = tower.getCenter().x;
     let y = 0;
 
+    // If the destination tower is empty put the disk in the depth
     if (tower.disks.length === 0) {
       y = tower.getBottomCenter().y - 40;
     } else {
+      // Otherwise take the first disk and get an offset to put the disk
       const firstDiskTypeTarget = tower.disks[tower.disks.length - 1];
 
       const firstDiskTarget = this._diskGroup.getByType(firstDiskTypeTarget);
@@ -142,11 +162,13 @@ export class GameRulesManager {
       y = firstDiskTarget.getBottomCenter().y - 50;
     }
 
-    disk.currentPosition = { x, y }; // Guardar posición actual
+    disk.currentPosition = { x, y }; // Keep this to get back the disk to the tower if is an invalid movement
 
+    // Remove disk from the origin tower
     const originTower = this._towerGroup.getByIndex(disk.towerOwner);
-    const firstDiskTypeOrigin = originTower.disks.pop(); // Eliminar primera pieza de la torre antigua
+    const firstDiskTypeOrigin = originTower.disks.pop();
 
+    // Add disk to the destination tower
     if (firstDiskTypeOrigin !== undefined) {
       tower.disks.push(disk.diskType); // Poner la pieza en la nueva torre
       disk.towerOwner = tower.towerType; // Guarda la torre en que se puso la pieza
@@ -155,23 +177,36 @@ export class GameRulesManager {
     return { x, y };
   }
 
+  /**
+   * This method tells if the user can put a disk on a tower
+   * @param disk disk to move
+   * @param tower tower destination
+   * @returns `true` if can move the disk, otherwise `false`
+   */
   isDiskOverlaped(disk: Disk, tower: Tower) {
     const originTower = this._towerGroup.getByIndex(disk.towerOwner);
 
+    // Improtant: this is to avoid move a disk different to the first one (the first on the top of the tower)
     if (originTower.disks[originTower.disks.length - 1] !== disk.diskType)
       return false;
 
+    // Move if the destination tower has 0 disks or if the disk to move is smaller than the one over there
     return (
       tower.disks.length === 0 ||
       disk.diskType > tower.disks[tower.disks.length - 1]
     );
   }
 
+  /**
+   * This method checks if the game ends (when all the disks are in the last tower)
+   * @returns `true` if has finished, othwerwise `false`
+   */
   hasFinished() {
     const tower = this._towerGroup.getByIndex(this._towerGroup.getLength() - 1);
 
     const disks = tower.disks;
 
+    // Isn't necessary validate the order of each disk because it's done by the collider
     if (disks.length < this._gameData.disksAmmount) return false;
 
     return true;

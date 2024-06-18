@@ -21,6 +21,9 @@ import { GameRulesManager } from '@game/managers/GameRulesManager';
 // Helpers
 import { getInitialGameData } from '@game/common/functions/getInitialGameData';
 
+/**
+ * This class represents the whole game
+ */
 export class Game extends Scene {
   private _gameData!: IGameInitialData;
 
