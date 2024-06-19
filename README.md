@@ -1,6 +1,6 @@
 ![hanoi](https://github.com/pr0mming/TowerHanoi/assets/20020612/50a219f7-9fd1-4bbf-862a-9e17e6cb080d)
 
-# Tower of Hanoi-JS
+# Tower of Hanoi
 
 This is a small simulator of the Towers of Hanoi using [Phaser 3](https://phaser.io), it fits up to 8 discs although you can customize it by changing the speed of game
 
