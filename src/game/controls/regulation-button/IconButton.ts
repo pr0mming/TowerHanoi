@@ -28,7 +28,7 @@ export class IconButton extends GameObjects.Image {
       () => {
         pointerDownEvent();
       },
-      this
+      this,
     );
   }
 }

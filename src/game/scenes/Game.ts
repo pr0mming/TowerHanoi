@@ -203,7 +203,7 @@ export class Game extends Scene {
 
           const { x, y } = this._gameRulesManager.computeDiskPosition(
             disk,
-            tower as Tower
+            tower as Tower,
           );
 
           disk.x = x;
@@ -213,7 +213,7 @@ export class Game extends Scene {
 
           this._labelGroup.setTextByKey(
             'ATTEMPS',
-            'MOVEMENTS: ' + this._gameData.attemps
+            'MOVEMENTS: ' + this._gameData.attemps,
           );
 
           // Check if user has won
@@ -230,7 +230,7 @@ export class Game extends Scene {
         (_, tower) => {
           return this._gameRulesManager.isDiskOverlaped(disk, tower as Tower);
         },
-        this
+        this,
       )
     ) {
       // Put back the sprite where it was (invalid movement case)
@@ -287,7 +287,7 @@ export class Game extends Scene {
 
       this._labelGroup.setTextByKey(
         'ATTEMPS',
-        'MOVEMENTS: ' + this._gameData.attemps
+        'MOVEMENTS: ' + this._gameData.attemps,
       );
     } else {
       // Has finished

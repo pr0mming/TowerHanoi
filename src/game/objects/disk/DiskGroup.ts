@@ -84,7 +84,7 @@ export class DiskGroup extends Physics.Arcade.Group {
     if (index >= this._DISK_TEXTURES.length) {
       const indexTmp = Phaser.Math.RND.between(
         0,
-        this._DISK_TEXTURES.length - 1
+        this._DISK_TEXTURES.length - 1,
       );
 
       return {

@@ -17,7 +17,7 @@ export class Preloader extends Scene {
       .text(
         this.cameras.main.centerX,
         this.cameras.main.centerY,
-        'LOADING GAME ...'
+        'LOADING GAME ...',
       )
       .setFontFamily('"BitBold", "Tahoma"')
       .setFontSize(15)

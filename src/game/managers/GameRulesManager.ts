@@ -107,7 +107,7 @@ export class GameRulesManager {
     origin: number,
     destination: number,
     auxiliary: number,
-    instructions: IGameInstruction[]
+    instructions: IGameInstruction[],
   ) {
     if (n == this._gameData.disksAmmount - 1) {
       instructions.push({
@@ -121,7 +121,7 @@ export class GameRulesManager {
         origin,
         auxiliary,
         destination,
-        instructions
+        instructions,
       );
 
       instructions.push({
@@ -135,7 +135,7 @@ export class GameRulesManager {
         auxiliary,
         destination,
         origin,
-        instructions
+        instructions,
       );
     }
   }

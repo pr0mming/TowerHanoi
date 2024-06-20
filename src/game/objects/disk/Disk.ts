@@ -64,7 +64,7 @@ export class Disk extends Physics.Arcade.Image {
       (_: unknown, dragX: number, dragY: number) => {
         this.x = dragX;
         this.y = dragY;
-      }
+      },
     );
 
     // Is necessary a callback to process large logic of collisions

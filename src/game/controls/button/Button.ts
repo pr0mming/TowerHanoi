@@ -48,7 +48,7 @@ export class Button extends GameObjects.Sprite {
         const textureKey = frames[1].textureFrame;
         this.setFrame(textureKey);
       },
-      this
+      this,
     )
       .on(
         Phaser.Input.Events.POINTER_OUT,
@@ -56,7 +56,7 @@ export class Button extends GameObjects.Sprite {
           const textureKey = frames[0].textureFrame;
           this.setFrame(textureKey);
         },
-        this
+        this,
       )
       .on(
         Phaser.Input.Events.POINTER_DOWN,
@@ -66,7 +66,7 @@ export class Button extends GameObjects.Sprite {
 
           onPointerDownEvent();
         },
-        this
+        this,
       );
   }
 
